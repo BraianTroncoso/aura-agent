@@ -1,0 +1,18 @@
+# Core — needed to boot and run on SQLite + Ollama (no API keys, no cost)
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+sqlalchemy==2.0.36
+greenlet>=3.0.0
+aiosqlite==0.20.0
+pydantic==2.10.3
+pydantic-settings==2.6.1
+httpx==0.28.1
+
+# Optional LLM providers — only needed if you switch off the local/Ollama path.
+# anthropic==0.40.0          # LLM_PROVIDER=anthropic / AURA_API_PROVIDER=anthropic
+# openai>=1.0.0              # LLM_PROVIDER=openai / AURA_API_PROVIDER=openai
+# google-generativeai==0.8.3 # AURA_API_PROVIDER=gemini
+
+# Optional — Postgres instead of SQLite
+# asyncpg==0.30.0
+# psycopg2-binary==2.9.10
