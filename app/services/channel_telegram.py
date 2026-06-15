@@ -14,13 +14,17 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-_BASE = "https://api.telegram.org/bot{token}/{method}"
 MAX_RETRIES = 3
 RETRY_BASE_DELAY = 1.0
 
 
 def _url(method: str) -> str:
-    return _BASE.format(token=settings.telegram_bot_token, method=method)
+    # Base host is configurable so the Bot API can be reached via a proxy on hosts
+    # that block outbound api.telegram.org (e.g. Hugging Face Spaces). Set
+    # TELEGRAM_API_BASE to a proxy URL (e.g. a Cloudflare Worker) that forwards to
+    # https://api.telegram.org. Defaults to Telegram directly.
+    base = (settings.telegram_api_base or "https://api.telegram.org").rstrip("/")
+    return f"{base}/bot{settings.telegram_bot_token}/{method}"
 
 
 # ── Sender ────────────────────────────────────────────────────────────────────
