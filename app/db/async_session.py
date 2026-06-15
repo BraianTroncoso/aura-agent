@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -15,8 +16,24 @@ elif "+asyncpg" not in _db:
 else:
     _async_url = _db
 
+# asyncpg doesn't accept libpq query params like ?sslmode=require / ?channel_binding
+# (which Neon/Supabase URLs include). Strip them and translate to a connect_args ssl
+# flag so a copy-pasted hosted-Postgres URL connects without manual edits.
+_connect_args: dict = {}
+if "+asyncpg" in _async_url:
+    _parts = urlsplit(_async_url)
+    _q = dict(parse_qsl(_parts.query))
+    _sslmode = _q.pop("sslmode", None)
+    _q.pop("channel_binding", None)
+    _async_url = urlunsplit(
+        (_parts.scheme, _parts.netloc, _parts.path, urlencode(_q), _parts.fragment)
+    )
+    if _sslmode and _sslmode != "disable":
+        _connect_args["ssl"] = True
+
 _pg_kwargs = (
-    {"pool_size": 10, "max_overflow": 0, "pool_pre_ping": True, "pool_recycle": 3600}
+    {"pool_size": 10, "max_overflow": 0, "pool_pre_ping": True, "pool_recycle": 3600,
+     "connect_args": _connect_args}
     if "sqlite" not in _async_url
     else {}
 )
