@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # ── Telegram (the chat interface) ─────────────────────────────────────────
     telegram_bot_token: str = ""           # from @BotFather — empty = Telegram off
     telegram_polling_enabled: bool = True  # long-poll; set False to use a webhook
+    telegram_webhook_secret: str = ""      # optional: shared secret for the webhook route
 
     # ── Gmail over IMAP/SMTP (App Password, no OAuth) ─────────────────────────
     gmail_address: str = ""
