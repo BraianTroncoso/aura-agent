@@ -15,6 +15,10 @@ class Settings(BaseSettings):
 
     # ── Telegram (the chat interface) ─────────────────────────────────────────
     telegram_bot_token: str = ""           # from @BotFather — empty = Telegram off
+    # Allowlist: comma-separated Telegram chat IDs allowed to use the bot. EMPTY =
+    # everyone (fine for fully local use). Set this for any public/hosted bot so
+    # strangers can't reach your Gmail/agent. e.g. "5621284872,123456".
+    allowed_telegram_ids: str = ""
     telegram_polling_enabled: bool = True  # long-poll; set False to use a webhook
     telegram_webhook_secret: str = ""      # optional: shared secret for the webhook route
     telegram_api_base: str = ""            # optional Bot API proxy (e.g. for hosts that block api.telegram.org)

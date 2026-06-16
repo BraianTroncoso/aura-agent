@@ -182,6 +182,19 @@ async def _get_updates(offset: int, timeout: int = 30) -> list[dict]:
         return []
 
 
+def _allowed(chat_id: str) -> bool:
+    """True if this chat is allowed to use the bot.
+
+    ALLOWED_TELEGRAM_IDS empty → everyone (local use). Set it on any public/hosted
+    bot so strangers can't reach the owner's Gmail/agent.
+    """
+    raw = (settings.allowed_telegram_ids or "").strip()
+    if not raw:
+        return True
+    allowed = {i.strip() for i in raw.split(",") if i.strip()}
+    return chat_id in allowed
+
+
 async def _handle_update(update: dict) -> None:
     """Dispatch a single Telegram update to the orchestrator or pairing flow."""
     # Import here to avoid circular imports at module load time
@@ -195,6 +208,11 @@ async def _handle_update(update: dict) -> None:
     chat_id = str(message["chat"]["id"])
     text = message.get("text", "").strip()
     message_id = str(message["message_id"])
+
+    if not _allowed(chat_id):
+        # Stranger — ignore silently (no reply, no Gmail access, no quota spent).
+        logger.warning("telegram_unauthorized_chat chat_id=%s", chat_id)
+        return
 
     if not text:
         # Ignore non-text / whitespace-only messages
